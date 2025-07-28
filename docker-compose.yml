@@ -1,0 +1,99 @@
+
+version: '3.8'
+
+services:
+  # Backend API Server
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: load-management-backend
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=3001
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_FROM_NUMBER=${TWILIO_FROM_NUMBER}
+      - ALERT_PHONE_NUMBER=${ALERT_PHONE_NUMBER}
+      - API_KEY=${API_KEY}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+    volumes:
+      - backend_data:/app/data
+      - backend_logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - load-management
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend React App
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: load-management-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    environment:
+      - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:3001}
+      - REACT_APP_WS_URL=${REACT_APP_WS_URL:-ws://localhost:3001}
+      - REACT_APP_API_KEY=${REACT_APP_API_KEY}
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - load-management
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: load-management-nginx
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/ssl/certs:ro
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - load-management
+    profiles:
+      - nginx
+
+  # Redis for caching and session management (Optional)
+  redis:
+    image: redis:7-alpine
+    container_name: load-management-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    restart: unless-stopped
+    networks:
+      - load-management
+    profiles:
+      - redis
+
+volumes:
+  backend_data:
+    driver: local
+  backend_logs:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  load-management:
+    driver: bridge

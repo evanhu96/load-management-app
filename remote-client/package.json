@@ -1,0 +1,37 @@
+
+
+{
+  "name": "load-data-collector",
+  "version": "1.0.0",
+  "description": "Remote data collector for load management system",
+  "main": "src/dataCollector.js",
+  "scripts": {
+    "start": "node src/dataCollector.js",
+    "dev": "nodemon src/dataCollector.js",
+    "test": "node src/test.js",
+    "install-service": "node src/install-service.js",
+    "uninstall-service": "node src/uninstall-service.js"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.7.2",
+    "chokidar": "^3.5.3",
+    "node-fetch": "^2.6.12",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": [
+    "trucking",
+    "load-management",
+    "data-collector",
+    "file-watcher"
+  ],
+  "bin": {
+    "load-collector": "./src/dataCollector.js"
+  }
+}
+
