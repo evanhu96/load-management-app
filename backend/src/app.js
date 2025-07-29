@@ -71,7 +71,11 @@ app.use((err, req, res, next) => {
 app.use("*", (req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
-
+// Add this right after your middleware setup
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.path}`);
+  next();
+});
 // WebSocket handling
 socketHandler(io);
 
