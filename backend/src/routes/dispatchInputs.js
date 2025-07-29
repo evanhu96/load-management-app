@@ -1,6 +1,9 @@
-// backend/src/routes/dispatchInputs.js - Simple version
+// backend/src/routes/dispatchInputs.js - Simple version with memory storage
 const express = require('express');
 const router = express.Router();
+
+// In-memory storage (will reset when server restarts)
+let dispatchInputsStore = [];
 
 // Test route to make sure it's working
 router.get('/test', (req, res) => {
@@ -9,37 +12,47 @@ router.get('/test', (req, res) => {
 
 // GET /api/dispatch-inputs - Get latest data
 router.get('/', (req, res) => {
-  res.json({ 
-    message: 'Dispatch inputs endpoint working',
-    dispatchInputs: [],
-    total: 0 
-  });
+  const { latest } = req.query;
+  
+  if (latest === 'true') {
+    // Return the most recent entry
+    const latestEntry = dispatchInputsStore.length > 0 ? 
+      dispatchInputsStore[dispatchInputsStore.length - 1] : null;
+    res.json(latestEntry);
+  } else {
+    // Return all entries
+    res.json({ 
+      dispatchInputs: dispatchInputsStore,
+      total: dispatchInputsStore.length 
+    });
+  }
 });
 
 // POST /api/dispatch-inputs - Receive data from frontend
 router.post('/', (req, res) => {
   const { origin, destination, miles, targetProfit, date } = req.body;
   
-  console.log('Received dispatch inputs:', {
-    origin,
-    destination, 
-    miles,
-    targetProfit,
-    date
-  });
+  const newEntry = {
+    id: dispatchInputsStore.length + 1,
+    origin: origin || '',
+    destination: destination || '',
+    miles: parseInt(miles) || 0,
+    targetProfit: parseInt(targetProfit) || 0,
+    date: date || '',
+    timestamp: new Date().toISOString(),
+    dispatchUser: 'dispatch'
+  };
   
-  // For now, just return success without database
+  // Store in memory
+  dispatchInputsStore.push(newEntry);
+  
+  console.log('Stored dispatch inputs:', newEntry);
+  console.log('Total entries:', dispatchInputsStore.length);
+  
   res.json({ 
     success: true,
     message: 'Dispatch inputs received successfully',
-    data: {
-      origin,
-      destination,
-      miles,
-      targetProfit,
-      date,
-      timestamp: new Date().toISOString()
-    }
+    data: newEntry
   });
 });
 
@@ -47,7 +60,7 @@ router.post('/', (req, res) => {
 router.get('/status', (req, res) => {
   res.json({
     status: 'ok',
-    totalEntries: 0,
+    totalEntries: dispatchInputsStore.length,
     timestamp: new Date().toISOString()
   });
 });
