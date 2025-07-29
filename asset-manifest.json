@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/load-management-app/static/css/main.e6c13ad2.css",
+    "main.js": "/load-management-app/static/js/main.a4aa4837.js",
+    "index.html": "/load-management-app/index.html",
+    "main.e6c13ad2.css.map": "/load-management-app/static/css/main.e6c13ad2.css.map",
+    "main.a4aa4837.js.map": "/load-management-app/static/js/main.a4aa4837.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.a4aa4837.js"
+  ]
+}
