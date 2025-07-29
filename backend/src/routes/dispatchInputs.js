@@ -32,22 +32,33 @@ const initializeDispatchInputsTable = () => {
   }
 };
 
-// And add this back at the bottom:
-setTimeout(() => {
-  initializeDispatchInputsTable();
-}, 5000); // Wait 5 seconds for database to be ready
+
 // Initialize table on module load
 // initializeDispatchInputsTable();
 
 // POST /api/dispatch-inputs - Receive data from frontend
 router.post('/', (req, res) => {
   const { origin, destination, miles, targetProfit, dispatchUser, timestamp } = req.body;
+  database.run(`CREATE TABLE IF NOT EXISTS dispatch_inputs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    origin TEXT,
+    destination TEXT,
+    miles INTEGER,
+    target_profit INTEGER,
+    dispatch_user TEXT DEFAULT 'dispatch',
+    timestamp TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`, (err) => {
+    if (err) {
+      console.error('Table creation error:', err);
+    }
+  });
   
   const insertQuery = `
     INSERT INTO dispatch_inputs (origin, destination, miles, target_profit, dispatch_user, timestamp)
     VALUES (?, ?, ?, ?, ?, ?)
   `;
-  
+  // Create table if it doesn't exist (add this at the start of the POST route)
   database.run(insertQuery, [
     origin || '',
     destination || '',
