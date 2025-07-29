@@ -169,21 +169,43 @@ router.delete('/:id', (req, res) => {
 });
 
 // GET /api/dispatch-inputs/status - Health check for this feature
+// GET /api/dispatch-inputs/status - Health check for this feature
 router.get('/status', (req, res) => {
-  database.get('SELECT COUNT(*) as count FROM dispatch_inputs', (err, row) => {
+  // First create table if it doesn't exist
+  const createTableQuery = `
+    CREATE TABLE IF NOT EXISTS dispatch_inputs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      origin TEXT,
+      destination TEXT,
+      miles INTEGER,
+      target_profit INTEGER,
+      dispatch_user TEXT DEFAULT 'dispatch',
+      timestamp TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
+  
+  database.run(createTableQuery, (err) => {
     if (err) {
-      logger.error('Error checking dispatch inputs status:', err);
+      logger.error('Error creating table:', err);
       return res.status(500).json({ error: 'Database error' });
     }
     
-    res.json({
-      status: 'ok',
-      totalEntries: row.count,
-      timestamp: new Date().toISOString()
+    // Now count the rows
+    database.get('SELECT COUNT(*) as count FROM dispatch_inputs', (err, row) => {
+      if (err) {
+        logger.error('Error checking dispatch inputs status:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      res.json({
+        status: 'ok',
+        totalEntries: row.count,
+        timestamp: new Date().toISOString()
+      });
     });
   });
 });
-
 // Comment out the immediate table creation:
 // initializeDispatchInputsTable();
 
