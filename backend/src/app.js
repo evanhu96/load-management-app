@@ -122,14 +122,24 @@ socketHandler(io);
 // Wrap your entire startServer in try/catch
 async function startServer() {
   try {
-    console.log('Starting server...');
     await initializeDatabase();
     console.log('Database init complete');
     
     const PORT = process.env.PORT || 3001;
+    console.log('Railway PORT env var:', process.env.PORT);
+    console.log('Using PORT:', PORT);
+    
     server.listen(PORT, "0.0.0.0", () => {
-      console.log(`Server running on port ${PORT}`);
+      console.log(`Server running on 0.0.0.0:${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+      
+      // Test internal connectivity
+      setTimeout(() => {
+        fetch(`http://localhost:${PORT}/health`)
+          .then(r => r.json())
+          .then(data => console.log('Internal health check:', data))
+          .catch(e => console.log('Internal health check failed:', e.message));
+      }, 1000);
     });
     
     console.log('Server setup complete');
