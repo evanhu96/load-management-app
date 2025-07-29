@@ -5,6 +5,7 @@ const { logger } = require('../utils/logger');
 const router = express.Router();
 
 // Initialize dispatch_inputs table
+// At the top of your dispatchInputs.js, change the initializeDispatchInputsTable function:
 const initializeDispatchInputsTable = () => {
   const createTableQuery = `
     CREATE TABLE IF NOT EXISTS dispatch_inputs (
@@ -19,15 +20,22 @@ const initializeDispatchInputsTable = () => {
     )
   `;
   
-  database.run(createTableQuery, (err) => {
-    if (err) {
-      logger.error('Error creating dispatch_inputs table:', err);
-    } else {
-      logger.info('Dispatch inputs table ready');
-    }
-  });
+  // Make it safer with error handling
+  if (database) {
+    database.run(createTableQuery, (err) => {
+      if (err) {
+        logger.error('Error creating dispatch_inputs table:', err);
+      } else {
+        logger.info('Dispatch inputs table ready');
+      }
+    });
+  }
 };
 
+// And add this back at the bottom:
+setTimeout(() => {
+  initializeDispatchInputsTable();
+}, 5000); // Wait 5 seconds for database to be ready
 // Initialize table on module load
 // initializeDispatchInputsTable();
 
