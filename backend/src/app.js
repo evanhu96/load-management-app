@@ -46,6 +46,7 @@ require("dotenv").config();
 const loadRoutes = require("./routes/loads");
 const configRoutes = require("./routes/config");
 const alertRoutes = require("./routes/alerts");
+const dispatchInputsRoutes = require('./routes/dispatchInputs');
 
 const app = express();
 const server = http.createServer(app);
@@ -56,7 +57,6 @@ const io = socketIo(server, {
   },
 });
 // In backend/src/app.js, add this with your other route imports:
-const dispatchInputsRoutes = require('./routes/dispatchInputs');
 
 
 // Middleware
@@ -121,13 +121,13 @@ app.use((req, res, next) => {
   next();
 });
 // Add this right after your other route imports in app.js:
-try {
-  const dispatchInputsRoutes = require('./routes/dispatchInputs');
-  app.use('/api/dispatch-inputs', dispatchInputsRoutes);
-  console.log('✅ Dispatch inputs routes loaded successfully');
-} catch (error) {
-  console.error('❌ Error loading dispatch inputs routes:', error.message);
-}
+// try {
+//   const dispatchInputsRoutes = require('./routes/dispatchInputs');
+//   app.use('/api/dispatch-inputs', dispatchInputsRoutes);
+//   console.log('✅ Dispatch inputs routes loaded successfully');
+// } catch (error) {
+//   console.error('❌ Error loading dispatch inputs routes:', error.message);
+// }
 // WebSocket handling
 socketHandler(io);
 
