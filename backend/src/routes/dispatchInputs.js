@@ -37,68 +37,78 @@ const initializeDispatchInputsTable = () => {
 // initializeDispatchInputsTable();
 
 // POST /api/dispatch-inputs - Receive data from frontend
+// POST /api/dispatch-inputs - Receive data from frontend
 router.post('/', (req, res) => {
   const { origin, destination, miles, targetProfit, dispatchUser, timestamp } = req.body;
-  database.run(`CREATE TABLE IF NOT EXISTS dispatch_inputs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    origin TEXT,
-    destination TEXT,
-    miles INTEGER,
-    target_profit INTEGER,
-    dispatch_user TEXT DEFAULT 'dispatch',
-    timestamp TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`, (err) => {
-    if (err) {
-      console.error('Table creation error:', err);
-    }
-  });
   
-  const insertQuery = `
-    INSERT INTO dispatch_inputs (origin, destination, miles, target_profit, dispatch_user, timestamp)
-    VALUES (?, ?, ?, ?, ?, ?)
+  // First, create table if it doesn't exist
+  const createTableQuery = `
+    CREATE TABLE IF NOT EXISTS dispatch_inputs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      origin TEXT,
+      destination TEXT,
+      miles INTEGER,
+      target_profit INTEGER,
+      dispatch_user TEXT DEFAULT 'dispatch',
+      timestamp TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
   `;
-  // Create table if it doesn't exist (add this at the start of the POST route)
-  database.run(insertQuery, [
-    origin || '',
-    destination || '',
-    parseInt(miles) || 0,
-    parseInt(targetProfit) || 0,
-    dispatchUser || 'dispatch',
-    timestamp || new Date().toISOString()
-  ], function(err) {
+  
+  // Create table first, then insert data
+  database.run(createTableQuery, (err) => {
     if (err) {
-      logger.error('Error saving dispatch inputs:', err);
-      return res.status(500).json({ error: 'Failed to save dispatch inputs' });
+      logger.error('Error creating dispatch_inputs table:', err);
+      return res.status(500).json({ error: 'Failed to create table' });
     }
     
-    logger.info('Dispatch inputs saved:', { 
-      id: this.lastID, 
-      origin, 
-      destination, 
-      miles, 
-      targetProfit 
-    });
+    // Now insert the data
+    const insertQuery = `
+      INSERT INTO dispatch_inputs (origin, destination, miles, target_profit, dispatch_user, timestamp)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
     
-    // Broadcast to connected clients (your laptop)
-    const io = req.app.get('io');
-    if (io) {
-      io.emit('dispatch_inputs_updated', {
-        id: this.lastID,
-        origin,
-        destination,
-        miles,
-        targetProfit,
-        dispatchUser,
-        timestamp,
-        action: 'created'
+    database.run(insertQuery, [
+      origin || '',
+      destination || '',
+      parseInt(miles) || 0,
+      parseInt(targetProfit) || 0,
+      dispatchUser || 'dispatch',
+      timestamp || new Date().toISOString()
+    ], function(err) {
+      if (err) {
+        logger.error('Error saving dispatch inputs:', err);
+        return res.status(500).json({ error: 'Failed to save dispatch inputs' });
+      }
+      
+      logger.info('Dispatch inputs saved:', { 
+        id: this.lastID, 
+        origin, 
+        destination, 
+        miles, 
+        targetProfit 
       });
-    }
-    
-    res.json({ 
-      success: true, 
-      id: this.lastID,
-      message: 'Dispatch inputs saved successfully' 
+      
+      // Broadcast to connected clients
+      const io = req.app.get('io');
+      if (io) {
+        io.emit('dispatch_inputs_updated', {
+          id: this.lastID,
+          origin,
+          destination,
+          miles,
+          targetProfit,
+          dispatchUser,
+          timestamp,
+          action: 'created'
+        });
+      }
+      
+      res.json({ 
+        success: true, 
+        id: this.lastID,
+        message: 'Dispatch inputs saved successfully' 
+      });
     });
   });
 });
