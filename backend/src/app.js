@@ -8,7 +8,26 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   process.exit(1);
 });
+// Add at the very top of app.js
+process.on('SIGTERM', (signal) => {
+  console.error('RECEIVED SIGTERM:', signal);
+  console.error('Stack trace:', new Error().stack);
+  console.error('Process uptime:', process.uptime());
+  console.error('Memory usage:', process.memoryUsage());
+  // Don't exit - let's see what happens
+});
 
+process.on('SIGINT', (signal) => {
+  console.error('RECEIVED SIGINT:', signal);
+});
+
+process.on('exit', (code) => {
+  console.error('PROCESS EXITING with code:', code);
+});
+
+process.on('beforeExit', (code) => {
+  console.error('BEFORE EXIT with code:', code);
+});
 
 const { database, initializeDatabase } = require("./utils/database");
 const { logger } = require("./utils/logger"); // ← This should be line 12
