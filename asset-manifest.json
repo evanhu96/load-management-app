@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/load-management-app/static/css/main.e6c13ad2.css",
-    "main.js": "/load-management-app/static/js/main.362bb7fc.js",
+    "main.js": "/load-management-app/static/js/main.ae6a1f1e.js",
     "index.html": "/load-management-app/index.html",
     "main.e6c13ad2.css.map": "/load-management-app/static/css/main.e6c13ad2.css.map",
-    "main.362bb7fc.js.map": "/load-management-app/static/js/main.362bb7fc.js.map"
+    "main.ae6a1f1e.js.map": "/load-management-app/static/js/main.ae6a1f1e.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.362bb7fc.js"
+    "static/js/main.ae6a1f1e.js"
   ]
 }
