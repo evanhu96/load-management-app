@@ -29,8 +29,9 @@ router.get('/', (req, res) => {
 });
 
 // POST /api/dispatch-inputs - Receive data from frontend
+// POST /api/dispatch-inputs - Receive data from frontend
 router.post('/', (req, res) => {
-  const { origin, destination, miles, targetProfit, date } = req.body;
+  const { origin, destination, miles, targetProfit, date, truck } = req.body; // ADD truck here
   
   const newEntry = {
     id: dispatchInputsStore.length + 1,
@@ -39,6 +40,7 @@ router.post('/', (req, res) => {
     miles: parseInt(miles) || 0,
     targetProfit: parseInt(targetProfit) || 0,
     date: date || '',
+    truck: parseInt(truck) || 1, // ADD this line - defaults to truck 1
     timestamp: new Date().toISOString(),
     dispatchUser: 'dispatch'
   };
@@ -49,13 +51,15 @@ router.post('/', (req, res) => {
   console.log('Stored dispatch inputs:', newEntry);
   console.log('Total entries:', dispatchInputsStore.length);
   
+  // Emit to WebSocket clients (you'll need to access io somehow)
+  // io.emit('dispatch_inputs_updated', newEntry);
+  
   res.json({ 
     success: true,
     message: 'Dispatch inputs received successfully',
     data: newEntry
   });
 });
-
 // GET /api/dispatch-inputs/status - Status check
 router.get('/status', (req, res) => {
   res.json({
