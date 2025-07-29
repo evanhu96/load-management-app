@@ -4,7 +4,7 @@
   "description": "Backend API server for load management system",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js",
+    "start": "exec node src/app.js",
     "dev": "nodemon src/app.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
