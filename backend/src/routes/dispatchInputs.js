@@ -29,7 +29,7 @@ const initializeDispatchInputsTable = () => {
 };
 
 // Initialize table on module load
-initializeDispatchInputsTable();
+// initializeDispatchInputsTable();
 
 // POST /api/dispatch-inputs - Receive data from frontend
 router.post('/', (req, res) => {
@@ -165,4 +165,11 @@ router.get('/status', (req, res) => {
   });
 });
 
+// Comment out the immediate table creation:
+// initializeDispatchInputsTable();
+
+// And add this instead:
 module.exports = router;
+
+// Add table initialization to be called later
+module.exports.initializeTable = initializeDispatchInputsTable;
