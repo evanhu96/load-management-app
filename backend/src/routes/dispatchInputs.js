@@ -221,6 +221,3 @@ router.get('/status', (req, res) => {
 
 // And add this instead:
 module.exports = router;
-
-// Add table initialization to be called later
-module.exports.initializeTable = initializeDispatchInputsTable;
