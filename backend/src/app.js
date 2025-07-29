@@ -1,3 +1,15 @@
+// Add this at the very top of app.js
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+
 const { database, initializeDatabase } = require("./utils/database");
 const { logger } = require("./utils/logger"); // ← This should be line 12
 const socketHandler = require("./websocket/socketHandler");
@@ -54,6 +66,14 @@ app.get("/api/health", (req, res) => {
     memory: process.memoryUsage(),
   });
 });
+// Make sure this is in your app.js
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', service: 'load-management-backend' });
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -80,23 +100,25 @@ app.use((req, res, next) => {
 socketHandler(io);
 
 // Initialize database and start server
+// Wrap your entire startServer in try/catch
 async function startServer() {
   try {
+    console.log('Starting server...');
     await initializeDatabase();
-    logger.info("Database initialized successfully");
-
+    console.log('Database init complete');
+    
     const PORT = process.env.PORT || 3001;
     server.listen(PORT, "0.0.0.0", () => {
-      // Add '0.0.0.0' here
-      logger.info(`Server running on port ${PORT}`);
-      logger.info(`Environment: ${process.env.NODE_ENV || "development"}`);
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
     });
+    
+    console.log('Server setup complete');
   } catch (error) {
-    logger.error("Failed to start server:", error);
+    console.error("Failed to start server:", error);
     process.exit(1);
   }
 }
-
 // Graceful shutdown
 process.on("SIGTERM", () => {
   logger.info("SIGTERM received, shutting down gracefully");
