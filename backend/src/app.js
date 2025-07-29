@@ -55,6 +55,9 @@ const io = socketIo(server, {
     methods: ["GET", "POST"],
   },
 });
+// In backend/src/app.js, add this with your other route imports:
+const dispatchInputsRoutes = require('./routes/dispatchInputs');
+
 
 // Middleware
 app.use(helmet());
@@ -75,6 +78,8 @@ app.set("io", io);
 app.use("/api/loads", loadRoutes);
 app.use("/api", configRoutes);
 app.use("/api/alerts", alertRoutes);
+// Then add this with your other app.use statements:
+app.use('/api/dispatch-inputs', dispatchInputsRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
