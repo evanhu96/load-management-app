@@ -1,0 +1,45 @@
+FROM node:18-alpine AS base
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Create app directory
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S loadapp -u 1001
+
+FROM base AS dependencies
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+FROM base AS runtime
+
+# Copy node_modules from dependencies stage
+COPY --from=dependencies /app/node_modules ./node_modules
+
+# Copy application source
+COPY --chown=loadapp:nodejs src/ ./src/
+
+# Create necessary directories
+RUN mkdir -p data logs && \
+    chown -R loadapp:nodejs data logs
+
+# Switch to non-root user
+USER loadapp
+
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3001/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+
+# Start application
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "src/app.js"]

@@ -1,0 +1,32 @@
+{
+  "Brooklyn,NY-Youngstown,OH-7/28-0-Arms": {
+    "hash": "Brooklyn,NY-Youngstown,OH-7/28-0-Arms",
+    "rate": 0,
+    "origin": "Brooklyn,NY",
+    "destination": "Youngstown,OH",
+    "dates": "7/28",
+    "company": "Armstrong Transport Group Inc",
+    "contact": "(205) 419-2923",
+    "trip": "413",
+    "age": "40m",
+    "postEpoch": 1753638266124,
+    "lastScene": 1753753950918,
+    "lastPosted": 1753609950918,
+    "newData": true,
+    "tab": 0,
+    "dho": "69",
+    "dhd": "0",
+    "truck": 1,
+    "website": "DAT",
+    "lanesDetails": "{\"check\":true,\"currentDeadhead\":null}",
+    "currentDeadhead": null,
+    "clickDetails": "false",
+    "active": true,
+    "hourMinute": {
+      "hours": 4,
+      "minutes": 57
+    },
+    "epoch": 1753765023,
+    "date": "07/29/2025 00:57:03"
+  }
+}
