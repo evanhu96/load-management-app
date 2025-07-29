@@ -120,6 +120,14 @@ app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.path}`);
   next();
 });
+// Add this right after your other route imports in app.js:
+try {
+  const dispatchInputsRoutes = require('./routes/dispatchInputs');
+  app.use('/api/dispatch-inputs', dispatchInputsRoutes);
+  console.log('✅ Dispatch inputs routes loaded successfully');
+} catch (error) {
+  console.error('❌ Error loading dispatch inputs routes:', error.message);
+}
 // WebSocket handling
 socketHandler(io);
 
