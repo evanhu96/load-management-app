@@ -659,6 +659,7 @@ class CollectorCLI {
 }
 
 // Main execution
+// Main execution
 if (require.main === module) {
   const config = {
     serverUrl: process.env.SERVER_URL || "http://localhost:3001",
@@ -679,7 +680,7 @@ if (require.main === module) {
     try {
       console.log("Starting Load Data Collector...");
       console.log(`Server URL: ${config.serverUrl}`);
-      console.log(`Watch paths: ${collector.config.watchPaths.join(", ")}`);
+      console.log(`Watch paths: ${collector.config.watchPaths?.join(", ") || "Default paths"}`); // FIXED LINE
 
       await collector.initialize();
 
@@ -694,5 +695,4 @@ if (require.main === module) {
 
   start();
 }
-
 module.exports = { LoadDataCollector, CollectorCLI };
